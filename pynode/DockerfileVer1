@@ -1,0 +1,37 @@
+FROM centos:7
+
+ENV PYTHON_VERSION "3.5.0"
+
+RUN yum -y update && yum clean all
+RUN yum install -y gcc wget yum-utils make zlib-dev openssl-devel sqlite-devel bzip2-devel git && yum clean all
+
+
+RUN wget https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VERSION}.tgz
+RUN tar xvf Python-${PYTHON_VERSION}.tgz
+RUN cd Python-${PYTHON_VERSION} && ./configure --prefix=/usr/local --disable-ipv6
+RUN cd Python-${PYTHON_VERSION} && make
+RUN cd Python-${PYTHON_VERSION} && make altinstall
+RUN rm -rf Python-${PYTHON_VERSION}*
+
+RUN python3.5 --version
+
+ENV PATH "/usr/local/bin:${PATH}"
+
+RUN yum install -y epel-release
+RUN yum install -y python-pip && yum clean all
+RUN yum install -y python-devel && yum clean all
+RUN python3.5 -m pip install --upgrade pip
+RUN python3.5 -m pip install --upgrade setuptools
+
+RUN yum install -y pandoc && yum clean all
+
+RUN mkdir /pynode
+RUN git clone -b develop --single-branch https://github.com/pandoraboxchain/pyrrha-pynode /pynode
+RUN python3.5 -m pip --version
+RUN python3.5 -m pip install -r /pynode/requirements.txt
+
+WORKDIR /pynode
+EXPOSE 7545 8545 5001
+
+# Run app.py when the container launches
+CMD ["python3.5", "/pynode/src/pynoded.py"]

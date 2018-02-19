@@ -1,0 +1,6 @@
+/.idea/*
+/.idea/
+/nbproject/private/
+/nbproject/
+/cmake-build-debug/
+/cmake-build-debug/*
